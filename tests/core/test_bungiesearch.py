@@ -126,7 +126,6 @@ class ModelIndexTestCase(TestCase):
         '''
         Tests that Bungiesearch remains lazy with specific function which should return clones.
         '''
-        Q= 
         inst = Article.objects.search.query('match', _all='Description')
         self.assertIsInstance(inst.only('_id'), inst.__class__, 'Calling `only` does not return a clone of itself.')
 
