@@ -8,6 +8,8 @@ from bungiesearch.utils import update_index
 from django.test import TestCase
 import pytz
 
+from elasticsearch_dsl import Q
+
 from core.models import Article, Unmanaged, NoUpdatedField, ManangedButEmpty
 from core.search_indices import ArticleIndex
 
@@ -87,7 +89,8 @@ class ModelIndexTestCase(TestCase):
         '''
         Tests iteration on Bungiesearch items.
         '''
-        lazy_search = Article.objects.search.query('match', title='title')
+        pls_query = Q('match', title='title')
+        lazy_search = Article.objects.search.query(pls_query)
         db_items = list(Article.objects.all())
         self.assertTrue(all([result in db_items for result in lazy_search]), 'Searching for title "title" did not return all articles.')
         self.assertTrue(all([result in db_items for result in lazy_search[:]]), 'Searching for title "title" did not return all articles when using empty slice.')
@@ -123,6 +126,7 @@ class ModelIndexTestCase(TestCase):
         '''
         Tests that Bungiesearch remains lazy with specific function which should return clones.
         '''
+        Q= 
         inst = Article.objects.search.query('match', _all='Description')
         self.assertIsInstance(inst.only('_id'), inst.__class__, 'Calling `only` does not return a clone of itself.')
 
