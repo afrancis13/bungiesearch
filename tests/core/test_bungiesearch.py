@@ -188,6 +188,7 @@ class ModelIndexTestCase(TestCase):
         '''
         Tests search alias errors and functionality.
         '''
+        print Article.objects.search.BUNGIE
         title_alias = Article.objects.bsearch_title_search('title')
         db_items = list(Article.objects.all())
         self.assertEqual(title_alias.to_dict(), {'query': {'match': {'title': 'title'}}}, 'Title alias search did not return the expected JSON query.')

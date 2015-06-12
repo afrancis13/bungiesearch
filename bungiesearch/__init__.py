@@ -42,6 +42,7 @@ class Bungiesearch(Search):
             for index_obj in index_module.__dict__.itervalues():
                 try:
                     if issubclass(index_obj, ModelIndex) and index_obj != ModelIndex:
+                        print index_instance
                         index_instance = index_obj()
                         assoc_model = index_instance.get_model()
                         cls._index_to_model[index_name].append(assoc_model)

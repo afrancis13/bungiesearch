@@ -22,6 +22,7 @@ class Article(models.Model):
     class Meta:
         app_label = 'core'
 
+
 class User(models.Model):
     name = models.TextField(db_index=True)
     user_id = models.TextField(blank=True, primary_key=True)
