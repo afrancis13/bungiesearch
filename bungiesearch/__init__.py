@@ -32,9 +32,9 @@ class Bungiesearch(Search):
 
     @classmethod
     def __load_settings__(cls):
-        #if cls.__loaded_indices__:
-        #    return
-        #cls.__loaded_indices__ = True
+        if cls.__loaded_indices__:
+            return
+        cls.__loaded_indices__ = True
 
         # Loading indices.
         for index_name, module_str in cls.BUNGIE['INDICES'].iteritems():
