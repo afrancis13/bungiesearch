@@ -10,6 +10,8 @@ from django.conf import settings
 from elasticsearch.client import Elasticsearch
 from six import string_types
 
+signal_processor = get_signal_processor()
+connections = settings.BUNGIESEARCH
 
 class Bungiesearch(Search):
     '''
