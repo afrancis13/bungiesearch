@@ -54,7 +54,7 @@ class ModelIndex(object):
             if cls_attr in self.fields:
                 logging.info('Overwriting implicitly defined model field {} ({}) its explicit definition: {}.'.format(cls_attr, unicode(self.fields[cls_attr]), unicode(obj)))
             self.fields[cls_attr] = obj
-
+    
     def matches_indexing_condition(self, item):
         '''
         Returns True by default to index all documents.
@@ -110,8 +110,8 @@ class ModelIndex(object):
                 continue
 
             # If field is a relation, skip.
-            if getattr(f, 'rel'):
-                continue
+            # if getattr(f, 'rel'):
+            #     continue
 
             attr = {'model_attr': f.name}
             if f.has_default():
