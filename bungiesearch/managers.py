@@ -28,12 +28,12 @@ class BungiesearchManager(Manager):
     def __init__(self, **kwargs):
         super(BungiesearchManager, self).__init__(**kwargs)
 
-        from . import Bungiesearch
-        from .signals import get_signal_processor
-        settings = Bungiesearch.BUNGIE
-        if 'SIGNALS' in settings:
-            self.signal_processor = get_signal_processor()
-            self.signal_processor.setup(self.model)
+        # from . import Bungiesearch
+        # from .signals import get_signal_processor
+        # settings = Bungiesearch.BUNGIE
+        # if 'SIGNALS' in settings:
+        #    self.signal_processor = get_signal_processor()
+        #    self.signal_processor.setup(self.model)
 
     def __getattr__(self, alias):
         '''
