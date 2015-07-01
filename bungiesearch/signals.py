@@ -47,9 +47,9 @@ class BungieSignalProcessor(object):
         delete_index_item(instance, sender.__name__)
 
     def setup(self):
-        signals.post_save.connect(self.post_save_connector, sender=model)
-        signals.pre_delete.connect(self.pre_delete_connector, sender=model)
+        signals.post_save.connect(self.post_save_connector)
+        signals.pre_delete.connect(self.pre_delete_connector)
 
     def teardown(self):
-        signals.pre_delete.disconnect(self.pre_delete_connector, sender=model)
-        signals.post_save.disconnect(self.post_save_connector, sender=model)
+        signals.pre_delete.disconnect(self.pre_delete_connector)
+        signals.post_save.disconnect(self.post_save_connector)
