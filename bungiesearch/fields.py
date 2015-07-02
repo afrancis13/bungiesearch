@@ -52,11 +52,6 @@ class AbstractField(object):
         self.eval_func = args.pop('eval_as', None)
         self.template_name = args.pop('template', None)
 
-        if self.template_name:
-            template_names = self.template_name
-            t = loader.select_template([template_names])
-            return t.render(Context({'object': obj}))
-
         if not self.model_attr and not self.eval_func:
             raise KeyError('{} gets its value via a model attribute or an eval function, but neither of `model_attr`, `eval_as` is provided. Args were {}.'.format(unicode(self), args))
 
@@ -74,6 +69,11 @@ class AbstractField(object):
         Computes the value of this field to update the index.
         :param obj: object instance, as a dictionary or as a model instance.
         '''
+        if self.template_name:
+            template_names = self.template_name
+            t = loader.select_template([template_name])
+            return t.render(Context({'object': obj})
+
         if self.eval_func:
             try:
                 return eval(self.eval_func)
