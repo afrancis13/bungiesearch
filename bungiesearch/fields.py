@@ -70,8 +70,7 @@ class AbstractField(object):
         :param obj: object instance, as a dictionary or as a model instance.
         '''
         if self.template_name:
-            template_names = self.template_name
-            t = loader.select_template([template_name])
+            t = loader.select_template([self.template_name])
             return t.render(Context({'object': obj}))
 
         if self.eval_func:
