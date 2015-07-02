@@ -54,7 +54,7 @@ class AbstractField(object):
 
         if not self.model_attr and not self.eval_func and not self.template_name:
             raise KeyError('{} gets its value via a model attribute, an eval function, or a template, but none of `model_attr`, `eval_as,` `template` is provided. Args were {}.'.format(unicode(self), args))
-
+        
         for attr, value in iteritems(args):
             if attr not in self.fields and attr not in AbstractField.common_fields:
                 raise KeyError('Attribute `{}` is not allowed for core type {}.'.format(attr, self.coretype))
@@ -84,7 +84,7 @@ class AbstractField(object):
         return getattr(obj, self.model_attr)
 
     def json(self):
-        return dict((attr, val) for attr, val in iteritems(self.__dict__) if attr not in ['eval_func', 'model_attr'])
+        return dict((attr, val) for attr, val in iteritems(self.__dict__) if attr not in ['eval_func', 'model_attr', 'template_name'])
 
 # All the following definitions could probably be done with better polymorphism.
 

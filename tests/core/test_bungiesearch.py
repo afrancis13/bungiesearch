@@ -225,6 +225,7 @@ class CoreTestCase(TestCase):
         print('Sleeping two seconds for Elasticsearch to index new item.')
         sleep(2) # Without this we query elasticsearch before it has analyzed the newly committed changes, so it doesn't return any result.
         find_three = Article.objects.search.query('match', title='three')
+        print(len(find_three))
         self.assertEqual(len(find_three), 2, 'Searching for "three" in title did not return exactly two items (got {}).'.format(find_three))
         # Let's check that both returned items are from different indices.
         self.assertNotEqual(find_three[0:1:True].meta.index, find_three[1:2:True].meta.index, 'Searching for "three" did not return items from different indices.')
