@@ -52,7 +52,7 @@ class AbstractField(object):
         self.eval_func = args.pop('eval_as', None)
         self.template_name = args.pop('template', None)
 
-        if not self.model_attr and not self.eval_func and not self.template_names:
+        if not self.model_attr and not self.eval_func and not self.template_name:
             raise KeyError('{} gets its value via a model attribute, an eval function, or a template, but none of `model_attr`, `eval_as,` `template` is provided. Args were {}.'.format(unicode(self), args))
 
         for attr, value in iteritems(args):
