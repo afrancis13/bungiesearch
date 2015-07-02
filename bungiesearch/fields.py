@@ -54,7 +54,7 @@ class AbstractField(object):
 
         if self.template_name:
             template_names = self.template_name
-            t = loader.select_template(template_names)
+            t = loader.select_template([template_names])
             return t.render(Context({'object': obj}))
 
         if not self.model_attr and not self.eval_func:
