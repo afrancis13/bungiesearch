@@ -44,7 +44,3 @@ class BungiesearchManager(Manager):
         This function will check whether the given model is allowed to use the proposed alias and will raise an attribute error if not.
         '''
         return self.search.hook_alias(alias, self.model)
-    
-    def __del__(self):
-        self.signal_processor.teardown(self.model)
-        del self
