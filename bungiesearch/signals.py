@@ -46,24 +46,32 @@ class BungieSignalProcessor(object):
 
         delete_index_item(instance, sender.__name__)
 
-    def setup(self, model):
-        signals.post_save.connect(self.post_save_connector, sender=model)
-        signals.pre_delete.connect(self.pre_delete_connector, sender=model)
+    def setup(self, model=None, setup_all_managed=False, setup_models=[]):
+        if model:
+            models = [model]
+        elif setup_all_managed:
+            model_names = [model for index in Bungiesearch.get_indices() for model in Bungiesearch.get_models(index)]
+            models = [Bungiesearch.get_model_index(model_str).get_model() for model_str in model_names]
+        elif setup_models:
+            models = setup_models
+        else:
+            models = None
 
-    def teardown(self, model):
-        signals.pre_delete.disconnect(self.pre_delete_connector, sender=model)
-        signals.post_save.disconnect(self.post_save_connector, sender=model)
-
-    def setup_all(self):
-        model_names = [model for index in Bungiesearch.get_indices() for model in Bungiesearch.get_models(index)]
-        for model_str in model_names:
-            model = Bungiesearch.get_model_index(model_str).get_model()
+        for model in models:
             signals.post_save.connect(self.post_save_connector, sender=model)
             signals.pre_delete.connect(self.pre_delete_connector, sender=model)
 
-    def teardown_all(self):
-        model_names = [model for index in Bungiesearch.get_indices() for model in Bungiesearch.get_models(index)]
-        for model_str in model_names:
-            model = Bungiesearch.get_model_index(model_str).get_model()
-            signals.pre_delete.disconnect(self.pre_delete_connector, sender=model)
+    def teardown(self, model=None, teardown_all_managed=False, teardown_models=[]):
+        if model:
+            models = [model]
+        elif teardown_all_managed:
+            model_names = [model for index in Bungiesearch.get_indices() for model in Bungiesearch.get_models(index)]
+            models = [Bungiesearch.get_model_index(model_str).get_model() for model_str in model_names]
+        elif teardown_models:
+            models = teardown_models
+        else:
+            models = None
+
+        for model in models:
             signals.post_save.disconnect(self.post_save_connector, sender=model)
+            signals.pre_delete.disconnect(self.pre_delete_connector, sender=model)

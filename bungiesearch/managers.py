@@ -33,7 +33,7 @@ class BungiesearchManager(Manager):
         settings = Bungiesearch.BUNGIE
         if 'SIGNALS' in settings:
             self.signal_processor = get_signal_processor()
-            self.signal_processor.setup(self.model)
+            self.signal_processor.setup(model=self.model)
 
     def __getattr__(self, alias):
         '''
