@@ -64,7 +64,7 @@ class BungieSignalProcessor(object):
     def teardown(self, model=None, models=[], teardown_managed=False):
         if model:
             disconnect_models = [model]
-        elif teardown_models:
+        elif models:
             disconnect_models = models
         elif teardown_managed:
             model_names = [mdl for index in Bungiesearch.get_indices() for mdl in Bungiesearch.get_models(index)]
