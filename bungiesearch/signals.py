@@ -55,7 +55,7 @@ class BungieSignalProcessor(object):
             model_names = [mdl for index in Bungiesearch.get_indices() for mdl in Bungiesearch.get_models(index)]
             connect_models = [Bungiesearch.get_model_index(model_str).get_model() for model_str in model_names]
         else:
-            connect_models = None
+            connect_models = []
 
         for connect_model in connect_models:
             signals.post_save.connect(self.post_save_connector, sender=connect_model)
@@ -70,7 +70,7 @@ class BungieSignalProcessor(object):
             model_names = [mdl for index in Bungiesearch.get_indices() for mdl in Bungiesearch.get_models(index)]
             disconnect_models = [Bungiesearch.get_model_index(model_str).get_model() for model_str in model_names]
         else:
-            disconnect_models = None
+            disconnect_models = []
 
         for disconnect_model in disconnect_models:
             signals.post_save.disconnect(self.post_save_connector, sender=disconnect_model)
