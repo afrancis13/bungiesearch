@@ -28,8 +28,6 @@ class BungiesearchManager(Manager):
     def __init__(self, **kwargs):
         super(BungiesearchManager, self).__init__(**kwargs)
 
-        Bungiesearch._managed_models.append(self.model)
-
         from . import Bungiesearch
         from .signals import get_signal_processor
         settings = Bungiesearch.BUNGIE
