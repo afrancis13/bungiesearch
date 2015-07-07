@@ -59,7 +59,7 @@ class BungieSignalProcessor(object):
         for model_str in model_names:
             model = Bungiesearch.get_model_index(model_str).get_model()
             signals.post_save.connect(self.post_save_connector, sender=model)
-            signals.pre_delete_connector.connect(self.pre_delete_connector, sender=model)
+            signals.pre_delete.connect(self.pre_delete_connector, sender=model)
 
     def teardown_all(self):
         model_names = [model for index in Bungiesearch.get_indices() for model in Bungiesearch.get_models(index)]
