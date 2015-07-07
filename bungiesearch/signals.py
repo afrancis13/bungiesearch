@@ -51,8 +51,8 @@ class BungieSignalProcessor(object):
         signals.pre_delete.connect(self.pre_delete_connector, sender=model)
 
     def teardown(self, model):
-        signals.pre_delete.disconnect(self.pre_delete_connector, sender=self.model)
-        signals.post_save.disconnect(self.post_save_connector, sender=self.model)
+        signals.pre_delete.disconnect(self.pre_delete_connector, sender=model)
+        signals.post_save.disconnect(self.post_save_connector, sender=model)
 
     def setup_all(self):
         model_names = [model for index in Bungiesearch.get_indices() for model in Bungiesearch.get_models(index)]
