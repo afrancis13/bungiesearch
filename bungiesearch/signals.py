@@ -50,6 +50,6 @@ class BungieSignalProcessor(object):
         signals.post_save.connect(self.post_save_connector, sender=model)
         signals.pre_delete.connect(self.pre_delete_connector, sender=model)
 
-    def teardown(self):
-        signals.pre_delete.disconnect(self.pre_delete_connector)
-        signals.post_save.disconnect(self.post_save_connector)
+    def teardown(self, model):
+        signals.pre_delete.disconnect(self.pre_delete_connector, sender=self.model)
+        signals.post_save.disconnect(self.post_save_connector, sender=self.model)
