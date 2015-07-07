@@ -47,3 +47,4 @@ class BungiesearchManager(Manager):
     
     def __del__(self):
         self.signal_processor.teardown(self.model)
+        del self
