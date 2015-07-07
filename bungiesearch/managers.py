@@ -28,6 +28,8 @@ class BungiesearchManager(Manager):
     def __init__(self, **kwargs):
         super(BungiesearchManager, self).__init__(**kwargs)
 
+        Bungiesearch._managed_models.append(self.model)
+
         from . import Bungiesearch
         from .signals import get_signal_processor
         settings = Bungiesearch.BUNGIE
@@ -45,3 +47,4 @@ class BungiesearchManager(Manager):
     
     def __del__(self):
         self.signal_processor.teardown(self.model)
+        self.__del__()
