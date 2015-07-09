@@ -73,5 +73,5 @@ class BungieSignalProcessor(object):
             disconnect_models = []
 
         for disconnect_model in disconnect_models:
-            signals.post_save.disconnect(self.post_save_connector, sender=disconnect_model)
             signals.pre_delete.disconnect(self.pre_delete_connector, sender=disconnect_model)
+            signals.post_save.disconnect(self.post_save_connector, sender=disconnect_model)
