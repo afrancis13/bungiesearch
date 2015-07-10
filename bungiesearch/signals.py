@@ -21,8 +21,10 @@ __items_to_be_indexed__ = defaultdict(list)
 class BungieSignalProcessor(object):
 
     def post_save_connector(self, sender, instance, **kwargs):
-        print type(sender)
-        print type(instance)
+        print ("SENDER", sender)
+        print ("INSTANCE", instance)
+        print ("TYPE SENDER", type(sender))
+        print ("TYPE INSTANCE", type(instance))
         try:
             Bungiesearch.get_index(sender, via_class=True)
         except KeyError:
