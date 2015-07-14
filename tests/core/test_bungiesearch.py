@@ -3,6 +3,7 @@ from datetime import datetime
 from bungiesearch import Bungiesearch
 from bungiesearch.management.commands import search_index
 from bungiesearch.utils import update_index
+from elasticsearch_dsl import F, Q
 from django.test import TestCase
 import pytz
 from six import iteritems
@@ -225,7 +226,7 @@ class CoreTestCase(TestCase):
         self.assertNotEqual(find_three[0:1:True].meta.index, find_three[1:2:True].meta.index, 'Searching for "three" did not return items from different indices.')
         # Let's now delete this object to test the post delete signal.
         obj.delete()
-    
+
     def test_bulk_delete(self):
         '''
         This tests that using the update_index function with 'delete' as the action performs a bulk delete operation on the data.
@@ -265,6 +266,59 @@ class CoreTestCase(TestCase):
         self.assertEqual(len(find_four), 0, 'Searching for "four" in title did not return exactly zero results (got {})'.format(find_four))        
         find_five = Article.objects.search.query('match', title='five')
         self.assertEqual(len(find_five), 0, 'Searching for "five" in title did not return exactly zero results (got {})'.format(find_five))        
+
+    def test_incremental_query(self):
+        user_1 = {'user_id': 'bungie3',
+                  'description': 'Description of test user 3',
+                  'created': pytz.UTC.localize(datetime(year=2015, month=1, day=1)),
+                  'updated': pytz.UTC.localize(datetime(year=2015, month=6, day=1)),
+                 }
+        user_2 = {'user_id': 'bungie4',
+                  'description': 'Description of test user 4',
+                  'created': pytz.UTC.localize(datetime(year=2015, month=1, day=1)),
+                  'updated': pytz.UTC.localize(datetime(year=2015, month=6, day=1)),
+                 }
+
+        user_obj1 = User.objects.create(**user_1)
+        user_obj2 = User.objects.create(**user_2)
+        
+        find_bungie = User.objects.search.query('match', description='Description')
+        self.assertEqual(len(find_bungie), 6, 'Searching for "Description" did not return exactly six results (got {})'.format(find_bungie))
+        
+        #import ipdb; ipdb.set_trace()
+        find_bungie.add_query(Q('match', description='3'))
+        self.assertEqual(len(find_bungie), 2, 'Searching for "bungie" in title and "test user 3" in description did not return exactly two results (got {})'.format(find_bungie))
+
+        find_bungie.add_query(Q('match', description='blah'))
+        self.assertEqual(len(find_bungie), 0, 'Searching for "bungie" in title, "test user 3" and "blah" in description did not return exactly zero results (got {})'.format(find_bungie))
+        
+        user_obj1.delete()
+        user_obj2.delete()
+
+    def test_incremental_filter(self):
+        art = {'title': 'Title six',
+               'description': 'Test incremental filtering',
+               'link': 'http://example.com/incfilter',
+               'published': pytz.UTC.localize(datetime(year=2015, month=7, day=13)),
+               'updated': pytz.UTC.localize(datetime(year=2015, month=7, day=20)),
+               'tweet_count': 20,
+               'source_hash': 159159159159,
+               'missing_data': '',
+               'positive_feedback': 50,
+               'negative_feedback': 5}
+
+        art_obj = Article.objects.create(**art)
+
+        filter_all = Article.objects.search.filter('term', tweet_count=20)
+        self.assertEqual(len(filter_all), 6, 'Filtering for a tweet count of 20 did not return exactly six results (got {})'.format(filter_all))
+        
+        filter_all.add_filter(F('term', title='six'))
+        self.assertEqual(len(filter_all), 2, 'Filtering for "Title six" results did not return exactly two results (got {})'.format(filter_all))
+
+        filter_all.add_filter(F('term', description='blah'))
+        self.assertEqual(len(filter_all), 0, 'Filtering results to contain "blah" did not return exactly zero results (got {})'.format(filter_all))
+        
+        art_obj.delete()
 
     def test_manager_interference(self):
         '''

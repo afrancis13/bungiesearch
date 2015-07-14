@@ -346,6 +346,16 @@ class Bungiesearch(Search):
             except IndexError:
                 return []
         return results
+    
+    def add_query(self, query_obj):
+        s = self._clone()
+        s = s.query(query_obj)
+        self.query = s.query
+
+    def add_filter(self, filter_obj):
+        s = self._clone()
+        s = s.filter(filter_obj)
+        self.filter = s.filter
 
     def hook_alias(self, alias, model_obj=None):
         '''
