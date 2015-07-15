@@ -306,6 +306,16 @@ class Bungiesearch(Search):
             s._only = fields
         return s
 
+    def add_query(self, query_obj):
+        s = self._clone()
+        s = s.query(query_obj)
+        self.query = s.query
+
+    def add_filter(self, filter_obj):
+        s = self._clone()
+        s = s.filter(filter_obj)
+        self.filter = s.filter
+    
     def __iter__(self):
         '''
         Allows iterating on the response.

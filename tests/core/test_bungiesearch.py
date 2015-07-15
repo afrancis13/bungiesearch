@@ -1,9 +1,9 @@
 from datetime import datetime
-from time import sleep
 
 from bungiesearch import Bungiesearch
 from bungiesearch.management.commands import search_index
 from bungiesearch.utils import update_index
+from elasticsearch_dsl import F, Q
 from django.test import TestCase
 import pytz
 from six import iteritems
@@ -59,8 +59,6 @@ class CoreTestCase(TestCase):
         NoUpdatedField.objects.create(title='My title', description='This is a short description.')
 
         search_index.Command().run_from_argv(['tests', 'empty_arg', '--update'])
-        print('Sleeping two seconds for Elasticsearch to index.')
-        sleep(2) # Without this we query elasticsearch before it has analyzed the newly committed changes, so it doesn't return any result.
 
     @classmethod
     def tearDownClass(cls):
@@ -222,17 +220,106 @@ class CoreTestCase(TestCase):
                'positive_feedback': 50,
                'negative_feedback': 5}
         obj = Article.objects.create(**art)
-        print('Sleeping two seconds for Elasticsearch to index new item.')
-        sleep(2) # Without this we query elasticsearch before it has analyzed the newly committed changes, so it doesn't return any result.
         find_three = Article.objects.search.query('match', title='three')
         self.assertEqual(len(find_three), 2, 'Searching for "three" in title did not return exactly two items (got {}).'.format(find_three))
         # Let's check that both returned items are from different indices.
         self.assertNotEqual(find_three[0:1:True].meta.index, find_three[1:2:True].meta.index, 'Searching for "three" did not return items from different indices.')
         # Let's now delete this object to test the post delete signal.
         obj.delete()
-        print('Sleeping two seconds for Elasticsearch to update its index after deleting an item.')
-        sleep(2) # Without this we query elasticsearch before it has analyzed the newly committed changes, so it doesn't return any result.
 
+    def test_bulk_delete(self):
+        '''
+        This tests that using the update_index function with 'delete' as the action performs a bulk delete operation on the data.
+        '''
+        bulk_art1 = {'title': 'Title four',
+                     'description': 'Bulk delete first',
+                     'link': 'http://example.com/bd1',
+                     'published': pytz.UTC.localize(datetime(year=2015, month=7, day=13)),
+                     'updated': pytz.UTC.localize(datetime(year=2015, month=7, day=20)),
+                     'tweet_count': 20,
+                     'source_hash': 159159159159,
+                     'missing_data': '',
+                     'positive_feedback': 50,
+                     'negative_feedback': 5}
+        bulk_art2 = {'title': 'Title five',
+                     'description': 'Bulk delete second',
+                     'link': 'http://example.com/bd2',
+                     'published': pytz.UTC.localize(datetime(year=2015, month=7, day=13)),
+                     'updated': pytz.UTC.localize(datetime(year=2015, month=7, day=20)),
+                     'tweet_count': 20,
+                     'source_hash': 159159159159,
+                     'missing_data': '',
+                     'positive_feedback': 50,
+                     'negative_feedback': 5}
+
+        bulk_obj1 = Article.objects.create(**bulk_art1)
+        bulk_obj2 = Article.objects.create(**bulk_art2)
+
+        find_five = Article.objects.search.query('match', title='five')
+        self.assertEqual(len(find_five), 2, 'Searching for "five" in title did not return exactly one result (got {})'.format(find_five))
+        
+        model_items = [bulk_obj1, bulk_obj2]
+        model_name = Article.__name__
+        update_index(model_items, model_name, action='delete', bulk_size=2, num_docs=-1, start_date=None, end_date=None, commit=True)
+        
+        find_four = Article.objects.search.query('match', title='four')
+        self.assertEqual(len(find_four), 0, 'Searching for "four" in title did not return exactly zero results (got {})'.format(find_four))        
+        find_five = Article.objects.search.query('match', title='five')
+        self.assertEqual(len(find_five), 0, 'Searching for "five" in title did not return exactly zero results (got {})'.format(find_five))        
+    
+    def test_incremental_query(self):
+        user_1 = {'user_id': 'bungie3',
+                  'description': 'Description of test user 3',
+                  'created': pytz.UTC.localize(datetime(year=2015, month=1, day=1)),
+                  'updated': pytz.UTC.localize(datetime(year=2015, month=6, day=1)),
+                 }
+        user_2 = {'user_id': 'bungie4',
+                  'description': 'Description of test user 4',
+                  'created': pytz.UTC.localize(datetime(year=2015, month=1, day=1)),
+                  'updated': pytz.UTC.localize(datetime(year=2015, month=6, day=1)),
+                 }
+
+        user_obj1 = User.objects.create(**user_1)
+        user_obj2 = User.objects.create(**user_2)
+        
+        find_bungie = User.objects.search.query('match', description='Description')
+        self.assertEqual(len(find_bungie), 6, 'Searching for "Description" did not return exactly six results (got {})'.format(find_bungie))
+        
+        #import ipdb; ipdb.set_trace()
+        find_bungie.add_query(Q('match', description='3'))
+        self.assertEqual(len(find_bungie), 2, 'Searching for "bungie" in title and "test user 3" in description did not return exactly two results (got {})'.format(find_bungie))
+
+        find_bungie.add_query(Q('match', description='blah'))
+        self.assertEqual(len(find_bungie), 0, 'Searching for "bungie" in title, "test user 3" and "blah" in description did not return exactly zero results (got {})'.format(find_bungie))
+        
+        user_obj1.delete()
+        user_obj2.delete()
+
+    def test_incremental_filter(self):
+        art = {'title': 'Title six',
+               'description': 'Test incremental filtering',
+               'link': 'http://example.com/incfilter',
+               'published': pytz.UTC.localize(datetime(year=2015, month=7, day=13)),
+               'updated': pytz.UTC.localize(datetime(year=2015, month=7, day=20)),
+               'tweet_count': 20,
+               'source_hash': 159159159159,
+               'missing_data': '',
+               'positive_feedback': 50,
+               'negative_feedback': 5}
+
+        art_obj = Article.objects.create(**art)
+
+        filter_all = Article.objects.search.filter('term', tweet_count=20)
+        self.assertEqual(len(filter_all), 6, 'Filtering for a tweet count of 20 did not return exactly six results (got {})'.format(filter_all))
+        
+        filter_all.add_filter(F('term', title='six'))
+        self.assertEqual(len(filter_all), 2, 'Filtering for "Title six" results did not return exactly two results (got {})'.format(filter_all))
+
+        filter_all.add_filter(F('term', description='blah'))
+        self.assertEqual(len(filter_all), 0, 'Filtering results to contain "blah" did not return exactly zero results (got {})'.format(filter_all))
+        
+        art_obj.delete()
+    
     def test_manager_interference(self):
         '''
         This tests that saving an object which is not managed by Bungiesearch won't try to update the index for that model.
@@ -292,8 +379,6 @@ class CoreTestCase(TestCase):
         Tests that the indexing condition controls indexing properly.
         '''
         mbeo = ManangedButEmpty.objects.create(title='Some time', description='This should never be indexed.')
-        print('Sleeping two seconds for Elasticsearch to (not) index.')
-        sleep(2)
         idxi = len(ManangedButEmpty.objects.search)
         self.assertEquals(idxi, 0, 'ManagedButEmpty has {} indexed items instead of zero.'.format(idxi))
         mbeo.delete()
