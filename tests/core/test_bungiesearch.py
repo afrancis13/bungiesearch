@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import sleep
 
 from bungiesearch import Bungiesearch
 from bungiesearch.management.commands import search_index
