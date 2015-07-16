@@ -73,18 +73,18 @@ class AbstractField(object):
             t = loader.select_template([self.template_name])
             return t.render(Context({'object': obj}))
 
-        if self.eval_func:
+        elif self.eval_func:
             try:
                 return eval(self.eval_func)
             except Exception as e:
                 raise type(e)('Could not compute value of {} field (eval_as=`{}`): {}.'.format(unicode(self), self.eval_func, unicode(e)))
          
-        if self.model_attr:
+        elif self.model_attr:
             if isinstance(obj, dict):
                 return obj[self.model_attr]
+            if callable(obj):
+                return obj()
             return getattr(obj, self.model_attr)
-        
-        return None
 
     def json(self):
         return dict((attr, val) for attr, val in iteritems(self.__dict__) if attr not in ['eval_func', 'model_attr', 'template_name'])
