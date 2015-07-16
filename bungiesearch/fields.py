@@ -82,9 +82,13 @@ class AbstractField(object):
         elif self.model_attr:
             if isinstance(obj, dict):
                 return obj[self.model_attr]
-            if callable(obj):
-                return obj()
-            return getattr(obj, self.model_attr)
+
+            current_obj = getattr(obj, self.model_attr)
+            
+            if callable(current_obj):
+                return current_obj()     
+            else:
+                return current_obj
 
     def json(self):
         return dict((attr, val) for attr, val in iteritems(self.__dict__) if attr not in ['eval_func', 'model_attr', 'template_name'])
