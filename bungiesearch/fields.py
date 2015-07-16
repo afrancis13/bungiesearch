@@ -50,8 +50,8 @@ class AbstractField(object):
         self.model_attr = args.pop('model_attr', None)
         self.eval_func = args.pop('eval_as', None)
 
-        if not self.model_attr and not self.eval_func:
-            raise KeyError('{} gets its value via a model attribute or an eval function, but neither of `model_attr`, `eval_as` is provided. Args were {}.'.format(unicode(self), args))
+#        if not self.model_attr and not self.eval_func:
+#            raise KeyError('{} gets its value via a model attribute or an eval function, but neither of `model_attr`, `eval_as` is provided. Args were {}.'.format(unicode(self), args))
 
         for attr, value in iteritems(args):
             if attr not in self.fields and attr not in AbstractField.common_fields:
@@ -67,6 +67,10 @@ class AbstractField(object):
         Computes the value of this field to update the index.
         :param obj: object instance, as a dictionary or as a model instance.
         '''
+        if self.template_name:
+            t = loader.select_template([self.template_name])
+            return t.render(Context({'object': obj}))
+
         if self.eval_func:
             try:
                 return eval(self.eval_func)
@@ -78,7 +82,7 @@ class AbstractField(object):
         return getattr(obj, self.model_attr)
 
     def json(self):
-        return dict((attr, val) for attr, val in iteritems(self.__dict__) if attr not in ['eval_func', 'model_attr'])
+        return dict((attr, val) for attr, val in iteritems(self.__dict__) if attr not in ['eval_func', 'model_attr', 'template_name'])
 
 # All the following definitions could probably be done with better polymorphism.
 

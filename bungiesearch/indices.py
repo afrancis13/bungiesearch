@@ -110,8 +110,8 @@ class ModelIndex(object):
                 continue
 
             # If field is a relation, skip.
-            if getattr(f, 'rel'):
-                continue
+            #if getattr(f, 'rel'):
+            #    continue
 
             attr = {'model_attr': f.name}
             if f.has_default():
