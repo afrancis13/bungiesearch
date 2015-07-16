@@ -351,11 +351,13 @@ class Bungiesearch(Search):
         s = self._clone()
         s = s.query(query_obj)
         self.query = s.query
+        return self
 
     def add_filter(self, filter_obj):
         s = self._clone()
         s = s.filter(filter_obj)
         self.filter = s.filter
+        return self
 
     def hook_alias(self, alias, model_obj=None):
         '''
