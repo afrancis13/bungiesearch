@@ -14,34 +14,34 @@ class SearchAlias(object):
             self._applicable_models = []
             self.alias_name = self._classname.lower()
         else:
-            self._applicable_models = getattr(_meta, 'models', None)
+#            self._applicable_models = getattr(_meta, 'models', None)
             self.alias_name = getattr(_meta, 'alias_name', self._classname.lower())
         self.search_instance = None
-        self.model = None
+#        self.model = None
 
     def _clone(self):
         s = self.__class__()
         s._classname = self._classname
-        s._applicable_models = self._applicable_models
+ #       s._applicable_models = self._applicable_models
         s.alias_name = self.alias_name
         return s
 
     def prepare(self, search_instance, model_obj):
         s = self._clone()
         s.search_instance = search_instance
-        s.model = model_obj
+#        s.model = model_obj
         return s
 
     def alias_for(self, **kwargs):
         raise NotImplementedError('{} does not provide an implementation for alias_for.'.format(self._classname))
 
-    def get_model(self):
-        if self.model:
-            return self.model
-        if self.search_instance._doc_type and len(self.search_instance._doc_type) == 1:
-            idxes = self.search_instance._model_name_to_model_idx[self.search_instance._doc_type[0]]
-            first_mdl = idxes[0].get_model()
-            if all(mdlidx.get_model() == first_mdl for mdlidx in idxes[1:]):
-                return first_mdl
-            raise ValueError('SearchAlias {} is associated to more than one index, and the model is differs between indices!')
-        raise ValueError('Instance associated to zero doc types or more than one.')
+#    def get_model(self):
+#        if self.model:
+#            return self.model
+#        if self.search_instance._doc_type and len(self.search_instance._doc_type) == 1:
+#            idxes = self.search_instance._model_name_to_model_idx[self.search_instance._doc_type[0]]
+#            first_mdl = idxes[0].get_model()
+#            if all(mdlidx.get_model() == first_mdl for mdlidx in idxes[1:]):
+#                return first_mdl
+#            raise ValueError('SearchAlias {} is associated to more than one index, and the model is differs between indices!')
+#        raise ValueError('Instance associated to zero doc types or more than one.')
