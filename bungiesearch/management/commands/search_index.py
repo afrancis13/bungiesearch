@@ -40,6 +40,11 @@ class Command(BaseCommand):
             dest='action',
             const='delete-mapping',
             help='Delete the mapping of specified models (or all models) on the index specified in the settings. Requires the "--guilty-as-charged" flag.'),
+        make_option('--clear',
+            action='store_const',
+            dest='action',
+            const='clear',
+            help='Clear the index specified in the settings.'),
         make_option('--guilty-as-charged',
             action='store_true',
             dest='confirmed',
@@ -91,10 +96,11 @@ class Command(BaseCommand):
         if not options['action']:
             raise ValueError('No action specified. Must be one of "create", "update" or "delete".')
 
-        if options['action'].startswith('delete'):
+        if options['action'].startswith('delete') or options['action'] == 'clear':
             if not options['confirmed']:
                 raise ValueError('If you know what a delete operation does (on index or mapping), add the --guilty-as-charged flag.')
-            if options['action'] == 'delete':
+
+            elif options['action'] == 'delete':
                 if options['index']:
                     indices = [options['index']]
                 else:
@@ -170,9 +176,14 @@ class Command(BaseCommand):
                 model_names = src.get_models(index)
             else:
                 model_names = [model for index in src.get_indices() for model in src.get_models(index)]
+            
+            update_action = 'index'
+            if options['action'] == 'clear':
+                update_action = 'delete'
+            
             # Update index.
             for model_name in model_names:
                 if hasattr(src.get_model_index(model_name), 'indexing_query'):
-                    update_index(src.get_model_index(model_name).indexing_query, model_name, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
+                    update_index(src.get_model_index(model_name).indexing_query, model_name, action=update_action, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
                 else:
-                    update_index(src.get_model_index(model_name).get_model().objects.all(), model_name, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
+                    update_index(src.get_model_index(model_name).get_model().objects.all(), model_name, action=update_action, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
