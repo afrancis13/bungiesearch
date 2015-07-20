@@ -96,7 +96,7 @@ class Command(BaseCommand):
         if not options['action']:
             raise ValueError('No action specified. Must be one of "create", "update" or "delete".')
 
-        if options['action'].startswith('delete') or options['action'] == 'clear':
+        if options['action'].startswith('delete'):
             if not options['confirmed']:
                 raise ValueError('If you know what a delete operation does (on index or mapping), add the --guilty-as-charged flag.')
 
