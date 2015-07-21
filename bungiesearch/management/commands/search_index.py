@@ -9,6 +9,7 @@ from six import iteritems
 from ... import Bungiesearch
 from ...utils import update_index
 
+from elasticsearch import TransportError
 
 class Command(BaseCommand):
     args = ''
