@@ -183,8 +183,11 @@ class Command(BaseCommand):
                 update_action = 'delete'
             
             # Update index.
-            for model_name in model_names:
-                if hasattr(src.get_model_index(model_name), 'indexing_query'):
-                    update_index(src.get_model_index(model_name).indexing_query, model_name, action=update_action, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
-                else:
-                    update_index(src.get_model_index(model_name).get_model().objects.all(), model_name, action=update_action, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
+            try:
+                for model_name in model_names:
+                    if hasattr(src.get_model_index(model_name), 'indexing_query'):
+                       update_index(src.get_model_index(model_name).indexing_query, model_name, action=update_action, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
+                    else:
+                        update_index(src.get_model_index(model_name).get_model().objects.all(), model_name, action=update_action, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
+            except TransportError:
+                pass
