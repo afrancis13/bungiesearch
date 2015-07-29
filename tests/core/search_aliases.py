@@ -13,7 +13,6 @@ class SearchTitle(SearchAlias):
 
 class Title(SearchAlias):
     def alias_for(self, title):
-        import ipdb; ipdb.set_trace()
         return self.search_instance.query('match', title=title)
 
 class InvalidAlias(SearchAlias):

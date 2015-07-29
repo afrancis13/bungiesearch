@@ -285,7 +285,6 @@ class CoreTestCase(TestCase):
         find_bungie = User.objects.search.query('match', description='Description')
         self.assertEqual(len(find_bungie), 6, 'Searching for "Description" did not return exactly six results (got {})'.format(find_bungie))
         
-        #import ipdb; ipdb.set_trace()
         find_bungie.add_query(Q('match', description='3'))
         self.assertEqual(len(find_bungie), 2, 'Searching for "bungie" in title and "test user 3" in description did not return exactly two results (got {})'.format(find_bungie))
 
