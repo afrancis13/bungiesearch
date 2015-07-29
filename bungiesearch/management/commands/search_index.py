@@ -141,6 +141,7 @@ class Command(BaseCommand):
                     mapping[mdl_idx.get_model().__name__] = mdl_idx.get_mapping()
 
                 logging.info('Creating index {} with {} doctypes.'.format(index, len(mapping)))
+                import ipdb; ipdb.set_trace()
                 es.indices.create(index=index, body={'mappings': mapping})
 
         elif options['action'] == 'update-mapping':

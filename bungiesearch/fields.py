@@ -54,6 +54,8 @@ class AbstractField(object):
 
 #        if not self.model_attr and not self.eval_func:
 #            raise KeyError('{} gets its value via a model attribute or an eval function, but neither of `model_attr`, `eval_as` is provided. Args were {}.'.format(unicode(self), args))
+        
+        import ipdb; ipdb.set_trace()
 
         for attr, value in iteritems(args):
             if attr not in self.fields and attr not in AbstractField.common_fields:

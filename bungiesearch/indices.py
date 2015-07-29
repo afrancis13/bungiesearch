@@ -3,6 +3,7 @@ import logging
 from bungiesearch.fields import AbstractField, django_field_to_index
 from six import iteritems
 
+from elasticsearch_dsl.analysis import Analyzer
 
 class ModelIndex(object):
     '''
@@ -68,6 +69,11 @@ class ModelIndex(object):
         '''
         :return: a dictionary which can be used to generate the elasticsearch index mapping for this doctype.
         '''
+#        def parse_field(field):
+#            if isinstance(field, Analyzer):
+#                return field.get_analyzer_definition()
+#            return field.json()
+        
         return {'properties': dict((name, field.json()) for name, field in iteritems(self.fields))}
 
     def serialize_object(self, obj, obj_pk=None):
