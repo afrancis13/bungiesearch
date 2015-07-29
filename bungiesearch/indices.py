@@ -44,7 +44,6 @@ class ModelIndex(object):
         self.fields.update(self._get_fields(fields, excludes, hotfixes))
         # Elasticsearch uses '_id' to identify items uniquely, so let's duplicate that field.
         # We're duplicating it in order for devs to still perform searches on `.id` as expected.
-        self.fields['_id'] = self.fields[id_field]
         self.fields_to_fetch = list(set(self.fields.keys()).union(additional_fields))
 
         # Adding or updating the fields which are defined at class level.
@@ -55,6 +54,8 @@ class ModelIndex(object):
             if cls_attr in self.fields:
                 logging.info('Overwriting implicitly defined model field {} ({}) its explicit definition: {}.'.format(cls_attr, unicode(self.fields[cls_attr]), unicode(obj)))
             self.fields[cls_attr] = obj
+
+        self.fields['_id'] = self.fields[id_field]
 
     def matches_indexing_condition(self, item):
         '''
