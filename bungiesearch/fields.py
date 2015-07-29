@@ -93,10 +93,18 @@ class AbstractField(object):
                 return current_obj
 
     def json(self):
-        return dict((attr, val) for attr, val in iteritems(self.__dict__) if attr not in ['eval_func', 'model_attr', 'template_name'])
+        json = {}
+        for attr, val in iteritems(self.__dict__):
+            if attr in ('eval_func', 'model_attr', 'template_name'):
+                continue
+            elif attr in ('analyzer', 'index_analyzer', 'search_analyzer') and isinstance(val, Analyzer):
+                json[attr] = val.to_dict()
+            else:
+                json[attr] = val
+
+        return json
 
 # All the following definitions could probably be done with better polymorphism.
-
 class StringField(AbstractField):
     coretype = 'string'
     fields = ['doc_values', 'term_vector', 'norms', 'index_options', 'analyzer', 'index_analyzer', 'search_analyzer', 'include_in_all', 'ignore_above', 'position_offset_gap', 'fielddata', 'similarity']

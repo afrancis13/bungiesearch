@@ -69,12 +69,32 @@ class ModelIndex(object):
         '''
         :return: a dictionary which can be used to generate the elasticsearch index mapping for this doctype.
         '''
-#        def parse_field(field):
-#            if isinstance(field, Analyzer):
-#                return field.get_analyzer_definition()
-#            return field.json()
-        
+
         return {'properties': dict((name, field.json()) for name, field in iteritems(self.fields))}
+
+    def collect_analysis(self):
+        '''
+        :return: a dictionary which is used to get the serialized analyzer definition from the analyzer class.
+        '''
+        analysis = {}    
+        for field in self.fields.values():
+            for analyzer_name in ('analyzer', 'index_analyzer', 'search_analyzer'):
+                if not hasattr(field, analyzer_name):
+                    continue
+
+                analyzer = getattr(field, analyzer_name)
+
+                if not isinstance(analyzer, Analyzer):
+                    continue
+
+                definition = analyzer.get_analysis_definition()
+                if definition is None:
+                    continue
+
+                for key in definition:
+                    analysis.setdefault(key, {}).update(definition[key])
+
+        return analysis
 
     def serialize_object(self, obj, obj_pk=None):
         '''
