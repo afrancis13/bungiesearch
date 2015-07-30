@@ -180,16 +180,12 @@ class Command(BaseCommand):
             else:
                 model_names = [model for index in src.get_indices() for model in src.get_models(index)]
             
-            update_action = 'index'
-            if options['action'] == 'clear':
-                update_action = 'delete'
-            
             # Update index.
             try:
                 for model_name in model_names:
                     if hasattr(src.get_model_index(model_name).Meta, 'indexing_query'):
-                       update_index(src.get_model_index(model_name).Meta.indexing_query, model_name, action=update_action, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
+                       update_index(src.get_model_index(model_name).Meta.indexing_query, model_name, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
                     else:
-                        update_index(src.get_model_index(model_name).get_model().objects.all(), model_name, action=update_action, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
+                        update_index(src.get_model_index(model_name).get_model().objects.all(), model_name, bulk_size=options['bulk_size'], num_docs=options['num_docs'], start_date=options['start_date'], end_date=options['end_date'])
             except TransportError:
                 pass
