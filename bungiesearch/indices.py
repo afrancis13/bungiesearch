@@ -115,8 +115,8 @@ class ModelIndex(object):
         serialized_object = {}
 
         for name, field in iteritems(self.fields):
-            if hasattr(self, "prepare_%s" % field):
-                value = getattr(self, "prepare_%s" % field)(obj)
+            if hasattr(self, "prepare_%s" % name):
+                value = getattr(self, "prepare_%s" % name)(obj)
             else:
                 value = field.value(obj)
 
