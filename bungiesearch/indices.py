@@ -112,7 +112,17 @@ class ModelIndex(object):
             except Exception as e:
                 raise ValueError('Could not find object of primary key = {} in model {} (model index class {}). (Original exception: {}.)'.format(obj_pk, self.model, self.__class__.__name__, e))
 
-        return dict((name, field.value(obj)) for name, field in iteritems(self.fields))
+        serialized_object = {}
+
+        for name, field in iteritems(self.fields):
+            if hasattr(self, "prepare_%s" % field):
+                value = getattr(self, "prepare_%s" % field)(obj)
+            else:
+                value = field.value(obj)
+
+            serialized_object[name] = value
+
+        return serialized_object
 
     def _get_fields(self, fields, excludes, hotfixes):
         '''
