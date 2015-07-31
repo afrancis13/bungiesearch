@@ -28,6 +28,13 @@ class BungiesearchManager(Manager):
     def __init__(self, **kwargs):
         super(BungiesearchManager, self).__init__(**kwargs)
 
+        from . import Bungiesearch
+        from .signals import get_signal_processor
+        settings = Bungiesearch.BUNGIE
+        if 'SIGNALS' in settings:
+            self.signal_processor = get_signal_processor()
+            self.signal_processor.setup(self.model)
+
     def __getattr__(self, alias):
         '''
         Shortcut for search aliases. As explained in the docs (https://docs.python.org/2/reference/datamodel.html#object.__getattr__),
