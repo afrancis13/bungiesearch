@@ -55,9 +55,10 @@ def update_index(model_items, model_name, action='index', bulk_size=100, num_doc
                 entry["_op_type"] = action
             bulk_index(src.get_es_instance(), data, index=index_name, doc_type=model.__name__, raise_on_error=True)
             prev_step = next_step
-
+        
         if commit:
             src.get_es_instance().indices.refresh(index=index_name)
+
 
 def delete_index_item(item, model_name, commit=True):
     '''
