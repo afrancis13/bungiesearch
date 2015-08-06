@@ -9,5 +9,5 @@ class Command(BaseCommand):
     option_list = set(BaseCommand.option_list + ClearCommand.option_list)
 
     def handle(self, **options):
-        call_command('clear_index')
-        call_command('search_index', action='update')
+        call_command('clear_index', **options)
+        call_command('search_index', action='update', **options)

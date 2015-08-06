@@ -15,12 +15,12 @@ class Command(BaseCommand):
             action='store_false',
             dest='interactive',
             default=True,
-            help='If provided, no prompts will be issued to the user and the data will be wiped out')
+            help='If provided, no prompts will be issued to the user and the data will be wiped out'),
        )
 
     def handle(self, **options):
         if options.get('interactive', True):
-            print("WARNING: This will irreparably remove EVERYTHING from your search index in connection '%s'." % "', '".join(using))
+            print("WARNING: This will irreparably remove EVERYTHING from your search index.")
             print("Your choices after this are to restore from backups or rebuild via the `rebuild_index` command.")
 
             yes_or_no = six.moves.input("Are you sure you wish to continue? [y/N] ")
@@ -30,5 +30,5 @@ class Command(BaseCommand):
                 print("No action taken.")
                 sys.exit()
 
-        call_command('search_index', action='delete', confirmed='guilty-as-charged')
-        call_command('search_index', action='create')
+        call_command('search_index', action='delete', confirmed='guilty-as-charged', **options)
+        call_command('search_index', action='create', **options)
