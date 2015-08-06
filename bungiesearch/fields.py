@@ -81,8 +81,14 @@ class AbstractField(object):
         elif self.model_attr:
             if isinstance(obj, dict):
                 return obj[self.model_attr]
-            return getattr(obj, self.model_attr)
-        
+            
+            current_obj = getattr(obj, self.model_attr)
+
+            if callable(current_obj):
+                return current_obj()
+            else:
+                return current_obj
+
         else:
             raise KeyError('{} gets its value via a model attribute, an eval function, a template, or is prepared in a method'
                            'call but none of `model_attr`, `eval_as,` `template,` `prepare_{}` is provided.'.format(unicode(field), name))
